@@ -27,6 +27,8 @@ if (!isset($_SESSION['user_id']) ) {
               $row=mysqli_fetch_array($data);
               $_SESSION['user_id']=$row['user_id'];
               $_SESSION['username']=$row['username'];
+              setcookie('user_id', $row['user_id'], time() + (60 * 60 * 24 * 30));    // Присваеваем куки который истечет через 30дней
+              setcookie('username', $row['username'], time() + (60 * 60 * 24 * 30));  // Присваеваем куки который истечет через 30дней
               $home_url='http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/index.php';
               header('Location: '.$home_url);
 
@@ -58,7 +60,7 @@ if (!isset($_SESSION['user_id']) ) {
 
 <?php
 if (empty($_SESSION['user_id'])) {
-  
+  //Если пользователь не вошел выводится пустая $error_msg а если пользователь не правильно вел данные то присваевается значение
   echo '<p class="error">'. $error_msg. '</p>';
 
  ?>

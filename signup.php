@@ -5,6 +5,7 @@ require_once('connectvars.php');
 $dbc=mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 if (isset($_POST['submit'])) {
+    //Получаем данные
     $username=mysqli_real_escape_string($dbc,trim($_POST['username']));
     $password1=mysqli_real_escape_string($dbc,trim($_POST['password1']));
     $password2=mysqli_real_escape_string($dbc,trim($_POST['password2']));
@@ -14,6 +15,7 @@ if (isset($_POST['submit'])) {
         $query="SELECT * FROM mismatch_user WHERE username='$username'";
         $data=mysqli_query($dbc,$query);
 
+        //Проверяем нет ли с таким же именем пользователя
         if (mysqli_num_rows($data)==0) {
             $query= "INSERT INTO mismatch_user(username,password,join_date) VALUES ('$username',SHA('$password1'),NOW())";
             mysqli_query($dbc,$query);

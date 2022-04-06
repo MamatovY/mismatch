@@ -1,57 +1,22 @@
-<?
-require_once('login.php');
-
-
-  session_start();
-
-  // If the session vars aren't set, try to set them with a cookie
-  if (!isset($_SESSION['user_id'])) {
-    if (isset($_COOKIE['user_id']) && isset($_COOKIE['username'])) {
-      $_SESSION['user_id'] = $_COOKIE['user_id'];
-      $_SESSION['username'] = $_COOKIE['username'];
-    }
-  }
-
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Mismatch - Edit Profile</title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-  <h3>Mismatch - Edit Profile</h3>
-
 <?php
+  require_once('startsession.php');
+
+  $page_title='Там, где противоположности сходятся!';
+  require_once('header.php');
 
   require_once('appvars.php');
   require_once('connectvars.php');
-  session_start();
-   $user_id=$_SESSION['user_id'];
-  // Connect to the database
-  $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-  if (isset($_SESSION['username'])) {
-    if(isset($_COOKIE['user_id'])&&isset($_COOKIE['username'])){
+  require_once('navmenu.php');
 
-    echo('<h2 class="login"> Вы вошли в приложение как '. $_SESSION['username'].'.</h2>');
-    echo '<h3>Mismatch - Where opposites attract!</h3>';
-    echo '&#10084; <a href="viewprofile.php">Просмотр профиля</a><br />';
-    echo '&#10084; <a href="editprofile.php">Редактирование профиля</a><br />';  
-    echo '&#10084; <a href="logout.php">Выход из приложения('.$_SESSION['username'] .') </a><br />';
+  require_once('login.php');
+
+  $user_id=$_SESSION['user_id'];
   
-  }else {
-    echo('<h2 class="login"> Вы вошли в приложение как Гость.</h2>');
-    echo '<h3>Mismatch - Where opposites attract!</h3>';
-    echo '&#10084; <a href="login.php">Вход в приложение</a><br />';
-    echo '&#10084; <a href="signup.php">Создание учетной записи</a><br />';
-  }}
-
-
+  $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+  
   if (isset($_POST['submit'])) {
-    // Grab the profile data from the POST
+    
     $first_name = mysqli_real_escape_string($dbc, trim($_POST['firstname']));
     $last_name = mysqli_real_escape_string($dbc, trim($_POST['lastname']));
     $gender = mysqli_real_escape_string($dbc, trim($_POST['gender']));
@@ -65,22 +30,22 @@ require_once('login.php');
     list($new_picture_width, $new_picture_height) = getimagesize($_FILES['new_picture']['tmp_name']);
     $error = false;
 
-    // Validate and move the uploaded picture file, if necessary
+    
     if (!empty($new_picture)) {
       if ((($new_picture_type == 'image/gif') || ($new_picture_type == 'image/jpeg') || ($new_picture_type == 'image/pjpeg') ||
         ($new_picture_type == 'image/png')) && ($new_picture_size > 0) && ($new_picture_size <= MM_MAXFILESIZE) &&
         ($new_picture_width <= MM_MAXIMGWIDTH) && ($new_picture_height <= MM_MAXIMGHEIGHT)) {
         if ($_FILES['file']['error'] == 0) {
-          // Move the file to the target upload folder
+          //Переместите файл в целевую папку загрузки
           $target = MM_UPLOADPATH . basename($new_picture);
           if (move_uploaded_file($_FILES['new_picture']['tmp_name'], $target)) {
-            // The new picture file move was successful, now make sure any old picture is deleted
+            
             if (!empty($old_picture) && ($old_picture != $new_picture)) {
               @unlink(MM_UPLOADPATH . $old_picture);
             }
           }
           else {
-            // The new picture file move failed, so delete the temporary file and set the error flag
+            
             @unlink($_FILES['new_picture']['tmp_name']);
             $error = true;
             echo '<p class="error">Sorry, there was a problem uploading your picture.</p>';
@@ -96,7 +61,7 @@ require_once('login.php');
       }
     }
 
-    // Update the profile data in the database
+    
     if (!$error) {
       if (!empty($first_name) && !empty($last_name) && !empty($gender) && !empty($birthdate) && !empty($city) && !empty($state)) {
         //Установите столбец изображения только в том случае, если есть новое изображение
@@ -112,7 +77,7 @@ require_once('login.php');
         }
         mysqli_query($dbc, $query);
 
-        // Confirm success with the user
+    
         echo '<p>Your profile has been successfully updated. Would you like to <a href="viewprofile.php">view your profile</a>?</p>';
 
         mysqli_close($dbc);
@@ -122,9 +87,9 @@ require_once('login.php');
         echo '<p class="error">You must enter all of the profile data (the picture is optional).</p>';
       }
     }
-  } // End of check for form submission
+  } 
   else {
-    // Grab the profile data from the database
+    
     $query = "SELECT first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '$user_id'";
     $data = mysqli_query($dbc, $query);
     $row = mysqli_fetch_array($data);
@@ -175,5 +140,6 @@ require_once('login.php');
     </fieldset>
     <input type="submit" value="Save Profile" name="submit" />
   </form>
-</body> 
-</html>
+<?php 
+  require_once('footer.php');
+?>

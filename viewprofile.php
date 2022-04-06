@@ -1,57 +1,19 @@
-<?
-require_once('login.php');
-
-  session_start();
-
-  // If the session vars aren't set, try to set them with a cookie
-  if (!isset($_SESSION['user_id'])) {
-    if (isset($_COOKIE['user_id']) && isset($_COOKIE['username'])) {
-      $_SESSION['user_id'] = $_COOKIE['user_id'];
-      $_SESSION['username'] = $_COOKIE['username'];
-    }
-  }
-
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Mismatch - View Profile</title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-  <h3>Mismatch - View Profile</h3>
-
 <?php
+  require_once('startsession.php');
+
+  $page_title='Там, где противоположности сходятся!';
+  require_once('header.php');
+
   require_once('appvars.php');
   require_once('connectvars.php');
 
-   
-  // Connect to the database
-  $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+  require_once('navmenu.php');
+
+  require_once('login.php');
+
+ $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
   $user_id=$_SESSION['user_id'];
-
-
-
-  if (isset($_SESSION['username'])) {
-    if(isset($_COOKIE['user_id'])&&isset($_COOKIE['username'])){
-
-    echo('<h2 class="login"> Вы вошли в приложение как '. $_SESSION['username'].'.</h2>');
-    echo '<h3>Mismatch - Where opposites attract!</h3>';
-    echo '&#10084; <a href="viewprofile.php">Просмотр профиля</a><br />';
-    echo '&#10084; <a href="editprofile.php">Редактирование профиля</a><br />';  
-    echo '&#10084; <a href="logout.php">Выход из приложения('.$_SESSION['username'] .') </a><br />';
   
-  }else {
-    echo('<h2 class="login"> Вы вошли в приложение как Гость.</h2>');
-    echo '<h3>Mismatch - Where opposites attract!</h3>';
-    echo '&#10084; <a href="login.php">Вход в приложение</a><br />';
-    echo '&#10084; <a href="signup.php">Создание учетной записи</a><br />';
-  }}
-
-
-  // Grab the profile data from the database
   if (!isset($_GET['user_id'])) {
     $query = "SELECT username, first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '$user_id'";
   }
@@ -61,7 +23,7 @@ require_once('login.php');
   $data = mysqli_query($dbc, $query);
 
   if (mysqli_num_rows($data) == 1) {
-    // The user row was found so display the user data
+  
     $row = mysqli_fetch_array($data);
     echo '<table>';
     if (!empty($row['username'])) {
@@ -88,11 +50,10 @@ require_once('login.php');
     }
     if (!empty($row['birthdate'])) {
       if (!isset($_GET['user_id']) || ($user_id == $_GET['user_id'])) {
-        // Show the user their own birthdate
         echo '<tr><td class="label">Birthdate:</td><td>' . $row['birthdate'] . '</td></tr>';
       }
       else {
-        // Show only the birth year for everyone else
+        //Показывать только год рождения для всех остальных
         list($year, $month, $day) = explode('-', $row['birthdate']);
         echo '<tr><td class="label">Year born:</td><td>' . $year . '</td></tr>';
       }
@@ -114,6 +75,6 @@ require_once('login.php');
   }
 
   mysqli_close($dbc);
+  require_once('footer.php');
 ?>
-</body> 
-</html>
+
